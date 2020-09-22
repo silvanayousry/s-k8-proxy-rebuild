@@ -6,23 +6,23 @@ There are multiple ways and tools to implement K8s including:
 
   ### Learning environment:
 
-    - minikube (https://kubernetes.io/docs/setup/learning-environment/minikube).
+   - [minikube](https://kubernetes.io/docs/setup/learning-environment/minikube)
 
-    - kind (https://kubernetes.io/docs/setup/learning-environment/kind).
+   - [kind](https://kubernetes.io/docs/setup/learning-environment/kind)
 
-    - Kubernetes The Hard Way (https://github.com/kelseyhightower/kubernetes-the-hard-way).
+   - [k8s the hard way](https://github.com/kelseyhightower/kubernetes-the-hard-way)
 
   ### Production environment:
 
-    - kubeadm (https://kubernetes.io/docs/setup/production-environment/tools/kubeadm).
+   - [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm)
 
-    - kops (https://kubernetes.io/docs/setup/production-environment/tools/kops).
+   - [kops](https://kubernetes.io/docs/setup/production-environment/tools/kops)
 
-    - kubespray (https://kubernetes.io/docs/setup/production-environment/tools/kubespray).
+   - [kubespray](https://kubernetes.io/docs/setup/production-environment/tools/kubespray).
 
   ### Third party tools:
 
-    - microk8s (https://microk8s.io).
+   - [microk8s](https://microk8s.io)
 
 # Kubernetes deployment
 
