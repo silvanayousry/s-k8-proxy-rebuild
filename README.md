@@ -48,17 +48,12 @@ Kubespray is a composition of Ansible playbooks that helps to install a Kubernet
 
 ### Installation
 
-1- The VMs running K8s will be hosted on GCP with the following specs:
+1- The VM running K8s will be hosted on GCP with the following specs:
 
-- 1 Bastion, 1 master and 1 worker
-- Ubuntu 18.04
+- Ubuntu 20.04
 - e2-medium (2 vCPUs, 4 GB memory)
 
-2- Generate a new ssh-key on the bastion and copy it to authorized_keys of all the machines:
-
-  `ssh-keygen`
-
-2- Install needed packages on the bastion server:
+3- Install needed packages:
 
 ```
 sudo apt update
@@ -68,24 +63,65 @@ cd kubespray/
 sudo pip3 install -r requirements.txt
 ```
 
-3- Build the inventory file ([ansible](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/ansible.md)):
+4- Build the inventory file ([ansible](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/ansible.md)):
+
+  - Generate the inventory file
+ 
+    ```
+    declare -a IPS=($k8s_node)
+    CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+    ```
+
+  - Remove access_ip from the _inventory/mycluster/hosts.yaml_ file:
+
+	```
+	all:
+	  hosts:
+	    node1:
+	      ansible_host: $k8s_node
+	      ip: $k8s_node
+	  children:
+	    kube-master:
+	      hosts:
+	        node1:
+	    kube-node:
+	      hosts:
+	        node1:
+	    etcd:
+	      hosts:
+	        node1:
+	    k8s-cluster:
+	      children:
+	        kube-master:
+	        kube-node:
+	    calico-rr:
+	      hosts: {}
+	```
+
+5- Add Ingress addon by editing the following lines to _inventory/mycluster/group_vars/k8s-cluster/addons.yml_:
 
 ```
-[all]
-node1 ansible_host=$IP  ip=$Internal_IP
-node2 ansible_host=$IP  ip=$Internal_IP
-
-
-[kube-master]
-node1
-
-[etcd]
-node1
-
-[kube-node]
-node2
-
-[k8s-cluster:children]
-kube-master
-kube-node
+ingress_nginx_enabled: true
+ingress_nginx_nodeselector:
+  node-role.kubernetes.io/master: ""
 ```
+
+6- Generate SSH key and copy the public key to _~/.ssh/authorized_keys_:
+
+```
+ssh-keygen
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys 
+```
+
+7- Run the ansible playbook:
+
+  `ansible-playbook -i inventory/mycluster/hosts.yaml  --become --become-user=root cluster.yml`
+
+8- Test the cluster deployment:
+
+- SSH to the node and run the following command:
+  ```
+  sudo su - 
+  kubectl get nodes
+  kubectl get all --all-namespaces
+  ``` 
