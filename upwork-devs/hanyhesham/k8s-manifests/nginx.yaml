@@ -1,0 +1,65 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: reverse-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx 
+        image: nginx:latest
+        imagePullPolicy: "Always"
+        env:
+          - name: ALLOWED_DOMAINS
+            value: gov.uk.glasswall-icap.com,www.gov.uk.glasswall-icap.com,assets.publishing.service.gov.uk.glasswall-icap.com
+          - name: ICAP_URL
+            value: icap://icap:1344/gw_rebuild
+          - name: ROOT_DOMAIN
+            value: glasswall-icap.com
+        volumeMounts:
+        - name: nginx-cert
+          mountPath: "etc/nginx/certs"
+          readOnly: true
+        - name: entrypoint
+          mountPath: "/docker-entrypoint.d/"
+          readOnly: true
+        - name: subfilter
+          mountPath: "/subfilter/"
+          readOnly: true
+      volumes:
+      - name: nginx-cert
+        secret:
+          secretName: cert
+      - name: entrypoint
+        secret:
+          secretName: entrypoint
+      - name: subfilter
+        secret:
+          secretName: subfilter
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: reverse-proxy
+spec:
+  selector:
+    app: nginx
+  ports:
+  - port: 443
+    name: secured
+    protocol: TCP
+    targetPort: 443
+  - port: 80
+    name: insecure
+    protocol: TCP
+    targetPort: 80
