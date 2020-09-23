@@ -125,3 +125,42 @@ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
   kubectl get nodes
   kubectl get all --all-namespaces
   ``` 
+
+# Apps deployment
+
+### Configure registry
+
+We are using github repo for this demo as a private registry.
+
+- Create a personal token with (_read:packages_, _write:packages_) permissions in your github account (Settings --> Developer settings --> personal access token)
+ 
+- Log in to the repo using your GitHub Id and the token.
+
+` docker login docker.pkg.github.com` 
+
+### Build Images
+
+Follow the guide in [k8-reverse-proxy](https://github.com/k8-proxy/k8-reverse-proxy/tree/develop/stable-src) to build ICAP and Squid images.
+
+**Note: This step should be done using GitHub actions to automated the process of images build and push in the prodcution environment**
+
+### Deploy apps manifests
+
+In order to deploy our stack to the K8s cluster, we need to apply some manifests as following:
+
+```
+cd k8s-manifests
+kubectl apply -f ns.yaml
+kubectl apply -f secrets.yaml
+kubectl apply -f icap.yaml
+kubectl apply -f squid.yaml
+kubectl apply -f nginx.yaml
+```
+### Issues
+
+- Fix Nginx entrypoint error (not mounted correctly).
+
+### Next Steps
+
+- Use Ingress for Nginx route.
+- Use Github actions for image creation.
