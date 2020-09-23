@@ -151,7 +151,9 @@ In order to deploy our stack to the K8s cluster, we need to apply some manifests
 ```
 cd k8s-manifests
 kubectl apply -f ns.yaml
-kubectl apply -f secrets.yaml
+kubectl create secret generic entrypoint --from-file=./entrypoint.sh -n reverse-proxy
+kubectl create secret generic subfilter --from-file=./subfilter.sh -n reverse-proxy
+kubectl create secret generic cert --from-file=./full.pem -n reverse-proxy
 kubectl apply -f icap.yaml
 kubectl apply -f squid.yaml
 kubectl apply -f nginx.yaml
