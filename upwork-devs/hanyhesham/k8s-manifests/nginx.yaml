@@ -17,14 +17,14 @@ spec:
       containers:
       - name: nginx 
         image: nginx:v1
-        imagePullPolicy: "Always"
+        imagePullPolicy: "IfNotPresent"
         env:
           - name: ALLOWED_DOMAINS
-            value: gov.uk.glasswall-icap.com,www.gov.uk.glasswall-icap.com,assets.publishing.service.gov.uk.glasswall-icap.com
+            value: gov.uk.glasswall-icap.com:30900,www.gov.uk.glasswall-icap.com:30900,assets.publishing.service.gov.uk.glasswall-icap.com:30900
           - name: ICAP_URL
             value: icap://icap:1344/gw_rebuild
           - name: ROOT_DOMAIN
-            value: glasswall-icap.com
+            value: glasswall-icap.com:30900
         volumeMounts:
         - name: nginx-cert
           mountPath: "etc/nginx/certs"
@@ -61,6 +61,7 @@ spec:
     name: secured
     protocol: TCP
     targetPort: 443
+    nodePort: 30900
   - port: 80
     name: insecure
     protocol: TCP

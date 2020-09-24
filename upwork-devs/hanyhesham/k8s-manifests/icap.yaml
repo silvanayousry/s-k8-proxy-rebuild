@@ -17,7 +17,7 @@ spec:
       containers:
       - name: icap
         image: docker.pkg.github.com/hanyhesham/s-k8-proxy-rebuild/gw-icap:latest
-        imagePullPolicy: "Always"
+        imagePullPolicy: "IfNotPresent"
 ---
 apiVersion: v1
 kind: Service
@@ -25,7 +25,6 @@ metadata:
   name: icap
   namespace: reverse-proxy
 spec:
-  type: NodePort
   selector:
     app: icap
   ports:
