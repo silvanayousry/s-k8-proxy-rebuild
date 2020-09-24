@@ -151,6 +151,20 @@ docker build . -t nginx:v1
 
 **Note: This step should be done using GitHub actions to automated the process of images build and push in the prodcution environment**
 
+
+### Fix Squid-ICAP problem
+
+Squid server fails to connect to ICAP server if hostname is used instead of IP, to fix this, we need to edit entrypoint in squid image.
+
+To build the new image:
+
+```
+cd images/squid
+docker build . -t squid-reverse:v1
+```
+
+**Note: This is a temporary solution to fix the issue, a PR should be requested in the [k8-reverse-proxy](https://github.com/k8-proxy/k8-reverse-proxy/tree/develop/stable-src) to edit the code.**
+
 ### Deploy apps manifests
 
 In order to deploy our stack to the K8s cluster, we need to apply some manifests as following:
@@ -165,6 +179,17 @@ kubectl apply -f icap.yaml
 kubectl apply -f squid.yaml
 kubectl apply -f nginx.yaml
 ```
+
+### Test Application
+
+- Add the following values to your machine hosts file:
+
+```
+$k8s_node_ip gov.uk.glasswall-icap.com www.gov.uk.glasswall-icap.com assets.publishing.service.gov.uk.glasswall-icap.com
+```
+
+- Open your browser and navigate to https://www.gov.uk.glasswall-icap.com:30900/
+
 
 ### Next Steps
 
