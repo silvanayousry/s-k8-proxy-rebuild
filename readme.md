@@ -32,6 +32,7 @@ Use the command
  export PATH=$PATH:/usr/local/go/bin             
 ``
 2.for windows
+
 Link of download of vesion 1.15 (https://golang.org/dl/go1.15.1.windows-amd64.msi)
 
 .**RabbitMQ**
