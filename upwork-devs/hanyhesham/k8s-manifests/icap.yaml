@@ -25,6 +25,7 @@ metadata:
   name: icap
   namespace: reverse-proxy
 spec:
+  type: NodePort
   selector:
     app: icap
   ports:
