@@ -1,20 +1,26 @@
 # ICAP server - MinIO & RabbitMQ communication
-## Description of the work
+##Description of the work
 initial code that upload a file and send it to MinIO and retrieve a MinIO path and it send a message to the RabbitMQ queue with the MinIO URL  path 
 --- 
 # Installation   
 .**Go intsall**
+
 A sample installation of go version 1.14:
+
  1.for Linux
+ 
  Prepare the apt packages
  `` sudo apt update                    
   ``
  ``sudo apt upgrade
  ``
- Link of download of version 1.14 (https://dl.google.com/go/go1.14.linux-amd64.tar.gz)
+
+Link of download of version 1.14 (https://dl.google.com/go/go1.14.linux-amd64.tar.gz)
+
 
 Use the command
 ``
+ 
  wget https://dl.google.com/go/go1.14.linux-amd64.tar.gz
  ``
  Untar in /usr/local
