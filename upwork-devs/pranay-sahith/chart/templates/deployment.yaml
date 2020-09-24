@@ -1,0 +1,143 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "trackableappname" . }}-nginx
+  annotations:
+    {{ if .Values.gitlab.app }}app.gitlab.com/app: {{ .Values.gitlab.app | quote }}{{ end }}
+    {{ if .Values.gitlab.env }}app.gitlab.com/env: {{ .Values.gitlab.env | quote }}{{ end }}
+  labels:
+    app: {{ template "appname" . }}-nginx
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "appname" . }}-nginx
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      annotations:
+        checksum/application-secrets: "{{ .Values.application.secretChecksum }}"
+        {{ if .Values.gitlab.app }}app.gitlab.com/app: {{ .Values.gitlab.app | quote }}{{ end }}
+        {{ if .Values.gitlab.env }}app.gitlab.com/env: {{ .Values.gitlab.env | quote }}{{ end }}
+{{- if .Values.podAnnotations }}
+{{ toYaml .Values.podAnnotations | indent 8 }}
+{{- end }}
+      labels:
+        app: {{ template "appname" . }}-nginx
+        track: "{{ .Values.application.track }}"
+        tier: "{{ .Values.application.tier }}"
+        release: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+{{ toYaml .Values.image.backend.secrets | indent 10 }}
+      containers:
+      - name: {{ .Chart.Name }}-nginx
+        image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+        imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
+        {{- if .Values.application.backend.secretName }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.application.backend.secretName }}
+        {{- end }}
+        {{- with .Values.application.backend.env }}
+        env:
+        {{- range $key, $val := . }}
+          - name: "{{ tpl $key $  }}"
+            value: "{{ tpl $val $  }}"
+        {{- end }}
+        {{- end }}
+        ports:
+        - name: "{{ .Values.service.name }}"
+          containerPort: {{ .Values.service.internalPort }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.livenessProbe.path }}
+            port: {{ .Values.service.internalPort }}
+            scheme: {{ .Values.livenessProbe.scheme }}
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.readinessProbe.path }}
+            port: {{ .Values.service.internalPort }}
+            scheme: {{ .Values.readinessProbe.scheme }}
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+        resources:
+{{ toYaml .Values.resources.backend | indent 12 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "trackableappname" . }}-squid
+  annotations:
+    {{ if .Values.gitlab.app }}app.gitlab.com/app: {{ .Values.gitlab.app | quote }}{{ end }}
+    {{ if .Values.gitlab.env }}app.gitlab.com/env: {{ .Values.gitlab.env | quote }}{{ end }}
+  labels:
+    app: {{ template "appname" . }}-squid
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "appname" . }}-squid
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      annotations:
+        checksum/application-secrets: "{{ .Values.application.secretChecksum }}"
+        {{ if .Values.gitlab.app }}app.gitlab.com/app: {{ .Values.gitlab.app | quote }}{{ end }}
+        {{ if .Values.gitlab.env }}app.gitlab.com/env: {{ .Values.gitlab.env | quote }}{{ end }}
+{{- if .Values.podAnnotations }}
+{{ toYaml .Values.podAnnotations | indent 8 }}
+{{- end }}
+      labels:
+        app: {{ template "appname" . }}-squid
+        release: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+{{ toYaml .Values.image.worker.secrets | indent 10 }}
+      containers:
+      - name: {{ .Chart.Name }}-squid
+        image: "{{ .Values.image.worker.repository }}:{{ .Values.image.worker.tag }}"
+        imagePullPolicy: {{ .Values.image.worker.pullPolicy }}
+        {{- if .Values.application.worker.secretName }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.application.worker.secretName }}
+        {{- end }}
+        {{- with .Values.application.worker.env }}
+        env:
+        {{- range $key, $val := . }}
+          - name: "{{ tpl $key $  }}"
+            value: "{{ tpl $val $  }}"
+        {{- end }}
+        {{- end }}
+        {{- if .Values.service.worker }}
+        ports:
+        - name: "{{ .Values.service.worker.name }}"
+          containerPort: {{ .Values.service.worker.internalPort }}
+        {{- end }}
+        {{- if .Values.livenessProbe.worker }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.livenessProbe.worker.path }}
+            port: {{ .Values.service.worker.internalPort }}
+            scheme: {{ .Values.livenessProbe.worker.scheme }}
+          initialDelaySeconds: {{ .Values.livenessProbe.worker.initialDelaySeconds }}
+          timeoutSeconds: {{ .Values.livenessProbe.worker.timeoutSeconds }}
+        {{- end }}
+        {{- if .Values.readinessProbe.worker }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.readinessProbe.worker.path }}
+            port: {{ .Values.service.worker.internalPort }}
+            scheme: {{ .Values.readinessProbe.worker.scheme }}
+          initialDelaySeconds: {{ .Values.readinessProbe.worker.initialDelaySeconds }}
+          timeoutSeconds: {{ .Values.readinessProbe.worker.timeoutSeconds }}
+        {{- end }}
+        resources:
+{{ toYaml .Values.resources.worker | indent 12 }}

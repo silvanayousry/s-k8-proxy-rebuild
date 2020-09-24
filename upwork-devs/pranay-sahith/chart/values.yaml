@@ -1,0 +1,84 @@
+# Default values for chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+image:
+  nginx:
+    repository: pranaysahith/reverse-proxy-nginx
+    tag: 0.0.1
+    pullPolicy: IfNotPresent
+  squid:
+    repository: pranaysahith/reverse-proxy-squid
+    tag: 0.0.1
+    pullPolicy: Always
+podAnnotations: {}
+application:
+  nginx:
+    secretName: reverse-proxy-nginx
+    env:
+      ALLOWED_DOMAINS: gov.uk.glasswall-icap.com,www.gov.uk.glasswall-icap.com,assets.publishing.service.gov.uk.glasswall-icap.com
+      ICAP_URL: icap://127.0.0.1:1344/gw_rebuild
+      ROOT_DOMAIN: glasswall-icap.com
+
+    secrets: {}
+  squid:
+    secretName: reverse-proxy-squid
+    env:
+      ALLOWED_DOMAINS: gov.uk.glasswall-icap.com,www.gov.uk.glasswall-icap.com,assets.publishing.service.gov.uk.glasswall-icap.com
+      ICAP_URL: icap://127.0.0.1:1344/gw_rebuild
+      ROOT_DOMAIN: glasswall-icap.com
+    secrets: {}
+
+service:
+  enabled: true
+  annotations: {}
+  name: nginx
+  type: ClusterIP
+  url: gov.uk.glasswall-icap.com
+  additionalHosts:
+  commonName:
+  externalPort: 443
+  internalPort: 443
+ingress:
+  tls:
+    enabled: true
+    secretName: ""
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    kubernetes.io/ingress.class: "nginx"
+  path: /
+livenessProbe:
+  path: "/"
+  initialDelaySeconds: 30
+  timeoutSeconds: 3
+  scheme: "HTTP"
+readinessProbe:
+  path: "/"
+  initialDelaySeconds: 30
+  timeoutSeconds: 3
+  scheme: "HTTP"
+
+resources:
+  nginx:
+    limits:
+      cpu: 250m
+      memory: 250Mi
+    requests:
+      cpu: 250m
+      memory: 250Mi
+  squid:
+    limits:
+      cpu: 250m
+      memory: 500Mi
+    requests:
+      cpu: 250m
+      memory: 500Mi
+
+#
+podDisruptionBudget:
+  enabled: false
+  # minAvailable: 1
+  maxUnavailable: 1
+scale:
+  MinReplicaCount: 1
+  MaxReplicaCount: 2
