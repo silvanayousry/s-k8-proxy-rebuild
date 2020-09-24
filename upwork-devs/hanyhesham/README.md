@@ -142,6 +142,13 @@ We are using github repo for this demo as a private registry.
 
 Follow the guide in [k8-reverse-proxy](https://github.com/k8-proxy/k8-reverse-proxy/tree/develop/stable-src) to build ICAP and Squid images.
 
+For the Nginx images, build the image from _nginx_ directory:
+
+```
+cd images/nginx
+docker build . -t nginx:v1 
+```
+
 **Note: This step should be done using GitHub actions to automated the process of images build and push in the prodcution environment**
 
 ### Deploy apps manifests
@@ -151,18 +158,18 @@ In order to deploy our stack to the K8s cluster, we need to apply some manifests
 ```
 cd k8s-manifests
 kubectl apply -f ns.yaml
-kubectl create secret generic entrypoint --from-file=./entrypoint.sh -n reverse-proxy
-kubectl create secret generic subfilter --from-file=./subfilter.sh -n reverse-proxy
-kubectl create secret generic cert --from-file=./full.pem -n reverse-proxy
+kubectl create secret generic entrypoint --from-file=./secrets/entrypoint.sh -n reverse-proxy
+kubectl create secret generic subfilter --from-file=./secrets/subfilter.sh -n reverse-proxy
+kubectl create secret generic cert --from-file=./secrets/full.pem -n reverse-proxy
 kubectl apply -f icap.yaml
 kubectl apply -f squid.yaml
 kubectl apply -f nginx.yaml
 ```
-### Issues
-
-- Fix Nginx entrypoint error (not mounted correctly).
 
 ### Next Steps
 
-- Use Ingress for Nginx route.
+~~- Use Ingress for Nginx route.~~
+
+**Note: As discussed with Nouman, we will use nodeport in this phase**
+
 - Use Github actions for image creation.
