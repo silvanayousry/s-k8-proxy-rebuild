@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	//"github.com/minio-go/pkg/credentials"
 
+	"github.com/joho/godotenv"
 	"github.com/minio/minio-go"
 	"github.com/minio/minio-go/pkg/credentials"
 	"github.com/streadway/amqp"
@@ -18,12 +20,19 @@ func failOnError(err error, msg string) {
 		log.Fatalf("%s: %s", msg, err)
 	}
 }
+func getenvvars() {
+	err := godotenv.Load("credentials.env")
+	if err != nil {
+		log.Fatal("error loadind .env file")
+	}
+}
 
 func main() {
+	getenvvars()
 	ctx := context.Background()
 	endpoint := "play.min.io"
-	accessKeyID := "Q3AM3UQ867SPQQA43P2F"
-	secretAccessKey := "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
+	accessKeyID := os.Getenv("ACCESS_KEY")
+	secretAccessKey := os.Getenv("SECRET_ACCESSKEY")
 	useSSL := true
 
 	// Initialize minio client object.
@@ -125,3 +134,4 @@ func main() {
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
 }
+
