@@ -1,3 +1,4 @@
+{{- if .Values.scale.nginx.enabled -}}
 apiVersion: autoscaling/v2beta1 
 kind: HorizontalPodAutoscaler 
 metadata: 
@@ -5,8 +6,8 @@ metadata:
   labels:
     app: {{ template "appname" . }}-nginx
 spec: 
-  maxReplicas: {{ .Values.scale.MaxReplicaCount }}
-  minReplicas: {{ .Values.scale.MinReplicaCount }}  
+  maxReplicas: {{ .Values.scale.nginx.MaxReplicaCount }}
+  minReplicas: {{ .Values.scale.nginx.MinReplicaCount }}  
   scaleTargetRef: 
     apiVersion: extensions/v1beta1
     kind: Deployment 
@@ -20,7 +21,9 @@ spec:
     resource: 
       name: memory 
       targetAverageUtilization: 75
+{{- end -}}
 ---
+{{- if .Values.scale.nginx.enabled -}}
 apiVersion: autoscaling/v2beta1 
 kind: HorizontalPodAutoscaler 
 metadata: 
@@ -28,8 +31,8 @@ metadata:
   labels:
     app: {{ template "appname" . }}-squid
 spec: 
-  maxReplicas: {{ .Values.scale.MaxReplicaCount }}
-  minReplicas: {{ .Values.scale.MinReplicaCount }}  
+  maxReplicas: {{ .Values.scale.squid.MaxReplicaCount }}
+  minReplicas: {{ .Values.scale.squid.MinReplicaCount }}  
   scaleTargetRef: 
     apiVersion: extensions/v1beta1
     kind: Deployment 
@@ -43,3 +46,4 @@ spec:
     resource: 
       name: memory 
       targetAverageUtilization: 80
+{{- end -}}

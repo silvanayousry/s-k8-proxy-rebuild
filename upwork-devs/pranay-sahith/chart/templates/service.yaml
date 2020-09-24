@@ -1,11 +1,11 @@
-{{- if .Values.service.enabled -}}
+{{- if .Values.service.nginx.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "fullname" . }}
-{{- if .Values.service.annotations }}
+  name: {{ template "fullname" . }}-nginx
+{{- if .Values.service.nginx.annotations }}
   annotations:
-{{ toYaml .Values.service.annotations | indent 4 }}
+{{ toYaml .Values.service.nginx.annotations | indent 4 }}
 {{- end }}
   labels:
     app: {{ template "appname" . }}
@@ -13,13 +13,12 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.service.nginx.type }}
   ports:
-  - port: {{ .Values.service.externalPort }}
-    targetPort: {{ .Values.service.internalPort }}
+  - port: {{ .Values.service.nginx.externalPort }}
+    targetPort: {{ .Values.service.nginx.internalPort }}
     protocol: TCP
-    name: {{ .Values.service.name }}
+    name: {{ .Values.service.nginx.name }}
   selector:
-    app: {{ template "appname" . }}-backend
-    tier: "{{ .Values.application.tier }}"
+    app: {{ template "appname" . }}-nginx
 {{- end -}}

@@ -6,39 +6,67 @@ image:
   nginx:
     repository: pranaysahith/reverse-proxy-nginx
     tag: 0.0.1
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   squid:
     repository: pranaysahith/reverse-proxy-squid
-    tag: 0.0.1
+    tag: 0.0.2
     pullPolicy: Always
+  icap:
+    repository: pranaysahith/reverse-proxy-c-icap
+    tag: 0.0.1
+    pullPolicy: IfNotPresent
 podAnnotations: {}
 application:
   nginx:
     secretName: reverse-proxy-nginx
     env:
       ALLOWED_DOMAINS: gov.uk.glasswall-icap.com,www.gov.uk.glasswall-icap.com,assets.publishing.service.gov.uk.glasswall-icap.com
-      ICAP_URL: icap://127.0.0.1:1344/gw_rebuild
+      ICAP_URL: icap://${REVERSE_PROXY_REVERSE_PROXY_ICAP_SERVICE_HOST}:1344/gw_rebuild
       ROOT_DOMAIN: glasswall-icap.com
-
+      SQUID_IP: reverse-proxy-reverse-proxy-squid
+      SUBFILTER_ENV: ".gov.uk,.gov.uk.glasswall-icap.com  .amazonaws.com,.amazonaws.com.glasswall-icap.com"
     secrets: {}
   squid:
     secretName: reverse-proxy-squid
     env:
       ALLOWED_DOMAINS: gov.uk.glasswall-icap.com,www.gov.uk.glasswall-icap.com,assets.publishing.service.gov.uk.glasswall-icap.com
-      ICAP_URL: icap://127.0.0.1:1344/gw_rebuild
+      ICAP_URL: icap://${REVERSE_PROXY_REVERSE_PROXY_ICAP_SERVICE_HOST}:1344/gw_rebuild
       ROOT_DOMAIN: glasswall-icap.com
+    secrets: {}
+  icap:
+    secretName: reverse-proxy-icap
+    env: {}
     secrets: {}
 
 service:
-  enabled: true
-  annotations: {}
-  name: nginx
-  type: ClusterIP
-  url: gov.uk.glasswall-icap.com
-  additionalHosts:
-  commonName:
-  externalPort: 443
-  internalPort: 443
+  nginx:
+    enabled: true
+    annotations: {}
+    name: nginx
+    type: ClusterIP
+    url: https://gov.uk.glasswall-icap.com
+    additionalHosts:
+    commonName:
+    externalPort: 443
+    internalPort: 443
+  squid:
+    enabled: true
+    annotations: {}
+    name: squid
+    type: ClusterIP
+    additionalHosts:
+    commonName:
+    externalPort: 8080
+    internalPort: 8080
+  icap:
+    enabled: true
+    annotations: {}
+    name: icap
+    type: ClusterIP
+    additionalHosts:
+    commonName:
+    externalPort: 1344
+    internalPort: 1344
 ingress:
   tls:
     enabled: true
@@ -73,6 +101,13 @@ resources:
     requests:
       cpu: 250m
       memory: 500Mi
+  icap:
+    limits:
+      cpu: 250m
+      memory: 500Mi
+    requests:
+      cpu: 250m
+      memory: 500Mi
 
 #
 podDisruptionBudget:
@@ -80,5 +115,15 @@ podDisruptionBudget:
   # minAvailable: 1
   maxUnavailable: 1
 scale:
-  MinReplicaCount: 1
-  MaxReplicaCount: 2
+  nginx:
+    enabled: false
+    MinReplicaCount: 1
+    MaxReplicaCount: 2
+  squid:
+    enabled: false
+    MinReplicaCount: 1
+    MaxReplicaCount: 2
+  icap:
+    enabled: false
+    MinReplicaCount: 1
+    MaxReplicaCount: 2
