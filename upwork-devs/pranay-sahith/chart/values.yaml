@@ -20,15 +20,15 @@ application:
   nginx:
     secretName: reverse-proxy-nginx
     env:
-      ALLOWED_DOMAINS: gov.uk.sahith.com,www.gov.uk.sahith.com,assets.publishing.service.gov.uk.sahith.com
-      ROOT_DOMAIN: sahith.com
-      SUBFILTER_ENV: ".gov.uk,.gov.uk.sahith.com  .amazonaws.com,.amazonaws.com.sahith.com"
+      ALLOWED_DOMAINS: gov.uk.glasswall-icap.com,www.gov.uk.glasswall-icap.com,assets.publishing.service.gov.uk.glasswall-icap.com
+      ROOT_DOMAIN: glasswall-icap.com
+      SUBFILTER_ENV: ".gov.uk,.gov.uk.glasswall-icap.com  .amazonaws.com,.amazonaws.com.glasswall-icap.com"
     secrets: {}
   squid:
     secretName: reverse-proxy-squid
     env:
-      ALLOWED_DOMAINS: gov.uk.sahith.com,www.gov.uk.sahith.com,assets.publishing.service.gov.uk.sahith.com
-      ROOT_DOMAIN: sahith.com
+      ALLOWED_DOMAINS: gov.uk.glasswall-icap.com,www.gov.uk.glasswall-icap.com,assets.publishing.service.gov.uk.glasswall-icap.com
+      ROOT_DOMAIN: glasswall-icap.com
     secrets: {}
   icap:
     secretName: reverse-proxy-icap
@@ -41,7 +41,7 @@ service:
     annotations: {}
     name: nginx
     type: ClusterIP
-    url: https://gov.uk.sahith.com
+    url: https://gov.uk.glasswall-icap.com
     additionalHosts:
     commonName:
     externalPort: 443
