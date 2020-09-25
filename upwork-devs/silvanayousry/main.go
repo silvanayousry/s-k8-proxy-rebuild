@@ -9,7 +9,7 @@ import (
 
 	//"github.com/minio-go/pkg/credentials"
 
-	"github.com/joho/godotenv"
+	//"github.com/joho/godotenv"
 	"github.com/minio/minio-go"
 	"github.com/minio/minio-go/pkg/credentials"
 	"github.com/streadway/amqp"
@@ -20,19 +20,19 @@ func failOnError(err error, msg string) {
 		log.Fatalf("%s: %s", msg, err)
 	}
 }
-func getenvvars() {
+/*func getenvvars() {
 	err := godotenv.Load("credentials.env")
 	if err != nil {
 		log.Fatal("error loadind .env file")
 	}
-}
+}*/
 
 func main() {
-	getenvvars()
+	//getenvvars()
 	ctx := context.Background()
 	endpoint := "play.min.io"
-	accessKeyID := os.Getenv("ACCESS_KEY")
-	secretAccessKey := os.Getenv("SECRET_ACCESSKEY")
+	accessKeyID := "<Access Key>"
+	secretAccessKey := "<Secret Key>"
 	useSSL := true
 
 	// Initialize minio client object.
@@ -83,7 +83,7 @@ func main() {
 	x := presignedURL.String()
 
 	//rabbitmq
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/%2F")
+	conn, err := amqp.Dial("amqp://<Username>:<Password>@localhost:5672/%2F")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
