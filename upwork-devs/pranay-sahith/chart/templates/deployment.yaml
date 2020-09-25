@@ -37,6 +37,10 @@ spec:
         {{- end }}
         {{- with .Values.application.nginx.env }}
         env:
+          - name: SQUID_IP
+            value: {{ template "fullname" $ }}-squid
+          - name: ICAP_URL
+            value: icap://${{ template "icap_host" $ }}:1344/gw_rebuild
         {{- range $key, $val := . }}
           - name: "{{ tpl $key $  }}"
             value: "{{ tpl $val $  }}"
@@ -101,8 +105,10 @@ spec:
         - secretRef:
             name: {{ .Values.application.squid.secretName }}
         {{- end }}
-        {{- with .Values.application.squid.env }}
         env:
+          - name: ICAP_URL
+            value: icap://${{ template "icap_host" $ }}:1344/gw_rebuild
+        {{- with .Values.application.squid.env }}
         {{- range $key, $val := . }}
           - name: "{{ tpl $key $  }}"
             value: "{{ tpl $val $  }}"
