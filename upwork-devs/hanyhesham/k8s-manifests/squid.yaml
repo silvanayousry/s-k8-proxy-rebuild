@@ -34,7 +34,6 @@ metadata:
   name: squid
   namespace: reverse-proxy
 spec:
-  type: NodePort
   selector:
     app: squid
   ports:
