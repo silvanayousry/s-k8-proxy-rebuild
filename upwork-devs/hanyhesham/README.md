@@ -165,6 +165,26 @@ docker build . -t squid-reverse:v1
 
 **Note: This is a temporary solution to fix the issue, a PR should be requested in the [k8-reverse-proxy](https://github.com/k8-proxy/k8-reverse-proxy/tree/develop/stable-src) to edit the code.**
 
+### Allow Ingress passthrough
+
+- Edit ingress daemonset to add new argument:
+
+  `kubectl edit daemonset.apps/ingress-nginx-controller -n ingress-nginx`
+
+- Add `- --enable-ssl-passthrough` to `- args:`:
+
+```
+    spec:
+      containers:
+      - args:
+        - --enable-ssl-passthrough
+```
+
+- Wait until new pod is up and running:
+
+  `kubectl get pods -n ingress-nginx`
+
+
 ### Deploy apps manifests
 
 In order to deploy our stack to the K8s cluster, we need to apply some manifests as following:
@@ -178,6 +198,7 @@ kubectl create secret generic cert --from-file=./secrets/full.pem -n reverse-pro
 kubectl apply -f icap.yaml
 kubectl apply -f squid.yaml
 kubectl apply -f nginx.yaml
+kubectl apply -f ingress.yaml
 ```
 
 ### Test Application
@@ -188,13 +209,9 @@ kubectl apply -f nginx.yaml
 $k8s_node_ip gov.uk.glasswall-icap.com www.gov.uk.glasswall-icap.com assets.publishing.service.gov.uk.glasswall-icap.com
 ```
 
-- Open your browser and navigate to https://www.gov.uk.glasswall-icap.com:30900/
+- Open your browser and navigate to https://www.gov.uk.glasswall-icap.com
 
 
 ### Next Steps
-
-~~- Use Ingress for Nginx route.~~
-
-**Note: As discussed with Nouman, we will use nodeport in this phase**
 
 - Use Github actions for image creation.
