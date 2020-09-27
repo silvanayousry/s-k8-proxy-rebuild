@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	//"github.com/minio-go/pkg/credentials"
 
-	//"github.com/joho/godotenv"
 	"github.com/minio/minio-go"
 	"github.com/minio/minio-go/pkg/credentials"
 	"github.com/streadway/amqp"
@@ -20,15 +18,9 @@ func failOnError(err error, msg string) {
 		log.Fatalf("%s: %s", msg, err)
 	}
 }
-/*func getenvvars() {
-	err := godotenv.Load("credentials.env")
-	if err != nil {
-		log.Fatal("error loadind .env file")
-	}
-}*/
 
 func main() {
-	//getenvvars()
+
 	ctx := context.Background()
 	endpoint := "play.min.io"
 	accessKeyID := "<Access Key>"
@@ -45,7 +37,7 @@ func main() {
 	}
 
 	// Make a new bucket
-	bucketName := "bucket"
+	bucketName := "buckettt"
 	location := "us-east-1"
 
 	err = minioClient.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: location})
@@ -62,8 +54,8 @@ func main() {
 	}
 
 	// Upload a  file
-	objectName := "datasheet.pdf"
-	filePath := "datasheet.pdf"
+	objectName := "example.pdf"
+	filePath := "outgoing/example.pdf"
 	contentType := "application/pdf"
 
 	n, err := minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
@@ -72,17 +64,18 @@ func main() {
 	}
 
 	log.Printf("Successfully uploaded %s of size %s \n", objectName, n)
-
+	//time.Sleep(2 * time.Second)
 	// Generates a url
 	expiry := time.Second * 48 * 60 * 60
-	presignedURL, err := minioClient.PresignedPutObject(context.Background(), "bucket", "datasheet.pdf", expiry)
+	presignedURL, err := minioClient.PresignedPutObject(context.Background(), "buckettt", "example.pdf", expiry)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	x := presignedURL.String()
-
+	time.Sleep(3 * time.Second)
 	//rabbitmq
+	fmt.Println("sending URL to rabbitmq")
 	conn, err := amqp.Dial("amqp://<Username>:<Password>@localhost:5672/%2F")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
@@ -111,6 +104,13 @@ func main() {
 			Body:        []byte(x),
 		})
 	log.Printf(" [x] Sent %s", x)
+	time.Sleep(3 * time.Second)
+	fmt.Println(" downloading the file in  local directory incoming")
+	err = minioClient.FGetObject(context.Background(), "buckettt", "example.pdf", "incoming/example.pdf", minio.GetObjectOptions{})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	failOnError(err, "Failed to publish a message")
 	msgs, err := ch.Consume(
 		q.Name, // queue
@@ -133,4 +133,5 @@ func main() {
 
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
+
 }
