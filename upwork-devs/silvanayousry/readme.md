@@ -1,6 +1,8 @@
 # ICAP server - MinIO & RabbitMQ communication
 ## Description of the work
-This is an sinitial code that upload a file and send it to MinIO and retrieve a MinIO path and it send a message to the RabbitMQ queue with the MinIO URL  path 
+
+This is an initial code that submit a file from a local directory and send it to MinIO and retrieve a MinIO URL and it send a message to the RabbitMQ queue with the MinIO URL  path and then Download the URL from MiniIO and save the file in a local directory called "Incoming"
+
 
 ---
 
@@ -28,6 +30,8 @@ Link of download of vesion 1.15 (https://golang.org/dl/go1.15.1.windows-amd64.ms
 
 
 **RabbitMQ**
+
+Link of download of RabbitMQ (https://www.rabbitmq.com/download.html)
 
 RabbitMQ should be  installed and running on localhost on standard port (5672). 
 
