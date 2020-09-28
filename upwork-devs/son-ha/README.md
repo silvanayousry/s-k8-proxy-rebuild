@@ -96,14 +96,15 @@ ROOT_DOMAIN=glasswall-icap.com
    docker login
    ```
 5. Check kubernetes environment 
-   
+   ```
     kubectl cluster-info 
     Get kubernetes IP:PORT
+    ```
 6. Deploy kubernetes POD
-   
+   ```
    cd <folder of docker-compose.yml file>
    kompose up --server <kubernetes IP:PORT>
-
+   ```
 ## Troubleshooting
 
 - Check if kubernetes service is active
