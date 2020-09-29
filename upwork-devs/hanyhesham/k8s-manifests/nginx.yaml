@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: nginx 
-        image: nginx:v1
+        image: hheshamrepo/nginx:v1 
         imagePullPolicy: "IfNotPresent"
         env:
           - name: ALLOWED_DOMAINS
