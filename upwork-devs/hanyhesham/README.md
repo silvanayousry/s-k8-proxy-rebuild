@@ -128,21 +128,33 @@ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 
 # Apps deployment
 
-### Configure registry
-
-We are using github repo for this demo as a private registry.
-
-- Create a personal token with (_read:packages_, _write:packages_) permissions in your github account (Settings --> Developer settings --> personal access token)
- 
-- Log in to the repo using your GitHub Id and the token.
-
-` docker login docker.pkg.github.com` 
-
 ### Build Images
 
-Follow the guide in [k8-reverse-proxy](https://github.com/k8-proxy/k8-reverse-proxy/tree/develop/stable-src) to build ICAP and Squid images.
+The guide for building ICAP and Squid images could be found in [k8-reverse-proxy](https://github.com/k8-proxy/k8-reverse-proxy/tree/develop/stable-src).
+
+Some issues occured during pods creation, I need to edit the Dockerfiles for Squid and Nginx images, you could check the new files in _images_ dir. 
 
 **Note: This step should be done using GitHub actions to automated the process of images build and push in the prodcution environment**
+
+### Allow Ingress passthrough
+
+- Edit ingress daemonset to add new argument:
+
+  `kubectl edit daemonset.apps/ingress-nginx-controller -n ingress-nginx`
+
+- Add `- --enable-ssl-passthrough` to `- args:`:
+
+```
+    spec:
+      containers:
+      - args:
+        - --enable-ssl-passthrough
+```
+
+- Wait until new pod is up and running:
+
+  `kubectl get pods -n ingress-nginx`
+
 
 ### Deploy apps manifests
 
@@ -151,18 +163,26 @@ In order to deploy our stack to the K8s cluster, we need to apply some manifests
 ```
 cd k8s-manifests
 kubectl apply -f ns.yaml
-kubectl create secret generic entrypoint --from-file=./entrypoint.sh -n reverse-proxy
-kubectl create secret generic subfilter --from-file=./subfilter.sh -n reverse-proxy
-kubectl create secret generic cert --from-file=./full.pem -n reverse-proxy
+kubectl create secret generic entrypoint --from-file=./secrets/entrypoint.sh -n reverse-proxy
+kubectl create secret generic subfilter --from-file=./secrets/subfilter.sh -n reverse-proxy
+kubectl create secret generic cert --from-file=./secrets/full.pem -n reverse-proxy
 kubectl apply -f icap.yaml
 kubectl apply -f squid.yaml
 kubectl apply -f nginx.yaml
+kubectl apply -f ingress.yaml
 ```
-### Issues
 
-- Fix Nginx entrypoint error (not mounted correctly).
+### Test Application
+
+- Add the following values to your machine hosts file:
+
+```
+$k8s_node_ip gov.uk.glasswall-icap.com www.gov.uk.glasswall-icap.com assets.publishing.service.gov.uk.glasswall-icap.com
+```
+
+- Open your browser and navigate to https://www.gov.uk.glasswall-icap.com
+
 
 ### Next Steps
 
-- Use Ingress for Nginx route.
 - Use Github actions for image creation.
