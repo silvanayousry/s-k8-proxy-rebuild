@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
       - name: nginx 
-        image: nginx:latest
-        imagePullPolicy: "Always"
+        image: hheshamrepo/nginx:v1 
+        imagePullPolicy: "IfNotPresent"
         env:
           - name: ALLOWED_DOMAINS
             value: gov.uk.glasswall-icap.com,www.gov.uk.glasswall-icap.com,assets.publishing.service.gov.uk.glasswall-icap.com
@@ -42,6 +42,7 @@ spec:
       - name: entrypoint
         secret:
           secretName: entrypoint
+          defaultMode: 0777
       - name: subfilter
         secret:
           secretName: subfilter
